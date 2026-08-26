@@ -131,7 +131,7 @@
     }
 
     async function callGeminiAPI(base64Data, mimeType) {
-        const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${state.apiKey}`;
+    const url = `https://generativelanguage.googleapis.com/v1/models/gemini-3.5-flash:generateContent?key=${state.apiKey}`;
         
         const prompt = `حلل صورة الوجبة هذه بدقة واستخرج القيم الغذائية بناءً على الكمية الظاهرة في الصورة، وأعطني الرد حصراً على شكل كود JSON بهذا الشكل ودون أي كود إضافي أو نصوص خارجية:
         {
