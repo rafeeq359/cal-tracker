@@ -401,7 +401,7 @@
 
    async function callGeminiAPI(base64Data, mimeType) {
     // تحديث رابط الموديل ليكون بالإصدار القياسي المدعوم حالياً
- const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${state.apiKey}`;
+const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${state.apiKey}`;
     
     const prompt = `حلل صورة وجبة الطعام هذه بدقة واستخرج القيم الغذائية فقط على شكل كود JSON خالص بهذا الشكل ودون أي كود إضافي أو علامات ترميز:
     {
