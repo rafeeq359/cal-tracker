@@ -398,39 +398,53 @@
         reader.readAsDataURL(file);
     }
 
-    async function callGeminiAPI(base64Data, mimeType) {
-        const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${state.apiKey}`;
-        
-        const prompt = `حلل صورة وجبة الطعام هذه بدقة واستخرج القيم الغذائية بصيغة JSON فقط بهذا الشكل الخالي من أي إضافات:
-        {
-          "name": "اسم الوجبة باختصار باللغة العربية",
-          "calories": إجمالي السعرات الحرارية (رقم صحيح),
-          "protein": جرامات البروتين (رقم صحيح),
-          "carbs": جرامات الكربوهيدرات (رقم صحيح),
-          "fat": جرامات الدهون (رقم صحيح)
-        }`;
+   async function callGeminiAPI(base64Data, mimeType) {
+    // تحديث رابط الموديل ليكون بالإصدار القياسي المدعوم حالياً
+    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${state.apiKey}`;
+    
+    const prompt = `حلل صورة وجبة الطعام هذه بدقة واستخرج القيم الغذائية فقط على شكل كود JSON خالص بهذا الشكل ودون أي كود إضافي أو علامات ترميز:
+    {
+      "name": "اسم الوجبة باختصار باللغة العربية",
+      "calories": إجمالي السعرات الحرارية (رقم صحيح فقط),
+      "protein": جرامات البروتين (رقم صحيح فقط),
+      "carbs": جرامات الكربوهيدرات (رقم صحيح فقط),
+      "fat": جرامات الدهون (رقم صحيح فقط)
+    }`;
 
-        const payload = {
-            contents: [{
-                parts: [
-                    { text: prompt },
-                    { inline_data: { mime_type: mimeType, data: base64Data } }
-                ]
-            }]
-        };
+    const payload = {
+        contents: [{
+            parts: [
+                { text: prompt },
+                { inline_data: { mime_type: mimeType, data: base64Data } }
+            ]
+        }]
+    };
 
-        const response = await fetch(url, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(payload)
-        });
+    const response = await fetch(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+    });
 
-        const result = await response.json();
-        const textResponse = result.candidates[0].content.parts[0].text;
-        const cleanJson = textResponse.replace(/```json/g, '').replace(/```/g, '').trim();
-        return JSON.parse(cleanJson);
+    const result = await response.json();
+    
+    // فحص إذا كان هناك خطأ راجع من سيرفر جوجل نفسه
+    if (result.error) {
+        console.error("Gemini API Error:", result.error);
+        alert("خطأ من جوجل API: " + result.error.message);
+        throw new Error(result.error.message);
     }
 
+    try {
+        const textResponse = result.candidates[0].content.parts[0].text;
+        // تنظيف النص بدقة لاستخراج الـ JSON
+        const cleanJson = textResponse.replace(/```json/g, '').replace(/```/g, '').trim();
+        return JSON.parse(cleanJson);
+    } catch (e) {
+        console.error("Parsing Error. Raw response was:", result);
+        throw new Error("فشل في قراءة بيانات الوجبة من الذكاء الاصطناعي.");
+    }
+}
     function addMeal(imageSrc, data) {
         const mealObj = {
             id: Date.now(),
