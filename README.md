@@ -388,8 +388,9 @@
                     addMeal(reader.result, nutritionData);
                 }
             } catch (error) {
-                alert('حدث خطأ أثناء تحليل الصورة. تأكد من صحة مفتاح الـ API واتصال الإنترنت.');
-                console.error(error);
+    console.error(error);
+    alert("الخطأ بالتفصيل: " + error.message);
+}
             } finally {
                 document.getElementById('loading-overlay').style.display = 'none';
                 event.target.value = '';
